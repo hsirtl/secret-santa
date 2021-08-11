@@ -73,11 +73,24 @@
         }
     }
 
-
+    /// The actual implementation of Grover's algorithm
+    ///
+    /// |0> ---H---X---o---X---H---X---o---X---H--- Measure
+    ///                |               |
+    /// |0> ---H---X---o-------H---X---Z---X---H--- Measure
+    ///                |
+    /// |1> ---H---X---+---------------------------
+    ///
     operation GroversLoop (register: Qubit[], oracle: ((Qubit[], Qubit) => Unit is Adj), numIterations: Int) : Unit {
         let phaseOracle = Oracle_Converter(oracle, _);
         ApplyToEach(H, register);
 
+        // the within-clause-means
+        // 1. apply H-gate
+        // 2. apply X-gate
+        // 3. apply the 'apply'-part, i.e., a controlled Z
+        // 4. apply X-gate
+        // 5. apply H-gate
         for (_ in 1 .. numIterations) {
             phaseOracle(register);
             within {
@@ -90,7 +103,7 @@
         }
     }
 
-    // Main function to run the Grover search 
+    // Main function to run the Grover search (the 'outer loop')
     operation RunGroversSearch (N : Int, oracle : ((Qubit[], Qubit) => Unit is Adj)) : Bool[] {
         // Try different numbers of iterations.
         mutable answer = new Bool[N];
@@ -158,10 +171,15 @@
         return variablesArray;
     }
 
-    // Given the total number of players, generate a 3d array of tuples representing the SAT
-    // problem for the Secret Santa raffle.
-    // Input: total number or players
-    // Return: 2d array of tuple representing the SAT problem
+    /// # Summary
+    /// Given the total number of players, generate a 3d array of tuples representing the SAT
+    /// problem for the Secret Santa raffle.
+    ///
+    /// # Input
+    /// Total number or players.
+    ///
+    /// # Output
+    /// 2d array of tuple representing the SAT problem.
     operation CreateSatTerm(players : Int) : (Int, Bool)[][] {
         let totalVariables = players * 2;
         let varibleNamesArray = CreateVariablesArray(players);
@@ -186,17 +204,20 @@
         for (i in 0 .. Length(intArray) - 1) {
             set totalArray += [GenerateSAT(intArray[i])];
         }
+        Message($"totalArray: {totalArray}");
         return totalArray;
     }
 
-
+    /// # Summary
+    /// This is the main operation that will be run when executing 'dotnet run'
+    /// via command line.
     @EntryPoint()
     operation RunSecretSanta () : Unit {
         // Simulate the raffle with 3 and with 4 people
         //for (players in 3 .. 4) {
 		for ( players in 3 .. 3 ) {
-            Message($"Simulate the Secret Santa raffle with {players} people");
-            let totalQubits = players * players - players;        // The number of variables that will be used
+            Message($"Simulate the Secret Santa raffle with {players} people.");
+            let totalQubits = players * players - players;        // The number of qbits that will be used
             let clauseTypes = ConstantArray(2 * players, "ONE");  // The gates that will be used, e.g. ["ONE", "ONE", ....]
             let problem = CreateSatTerm(players);                 // The SAT problem string, e.g. [[(0, true), (1, true)]]
 
@@ -208,7 +229,7 @@
 
     // Outputs the result on the console to see who has picked who.
     operation PrintResults(result : Bool[], N: Int) : Unit{
-        let names = ["Vincent","Uma    ","Tess   "];
+        let names = ["Vincent","Uma    ","Tess   ","Steve  "];
         
         mutable count = 0;
         
