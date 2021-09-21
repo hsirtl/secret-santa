@@ -1,4 +1,4 @@
-﻿namespace Quantum.SecretSanta {
+namespace Quantum.SecretSanta {
 
     open Microsoft.Quantum.Canon;
     open Microsoft.Quantum.Intrinsic;
@@ -9,7 +9,7 @@
     // This function returns only the qubits from the input register which are defined in the clause
     function GetClauseQubits (queryRegister : Qubit[], clause: (Int, Bool)[]) : Qubit[] {
         mutable clauseQubits = new Qubit[0];
-        for ((index, _) in clause) {
+        for (index, _) in clause {
             set clauseQubits += [queryRegister[index]];
         }
         return clauseQubits;
@@ -18,7 +18,7 @@
     // Evaluates the query against a specified clause, which a specified gate.
     operation Oracle_SATClause (queryRegister : Qubit[], target : Qubit, clause : (Int, Bool)[], clauseType : String) : Unit is Adj {
         within {
-            for ((index, positive) in clause) {
+            for (index, positive) in clause {
                 if (not positive) {
                     X(queryRegister[index]);
                 }
@@ -43,10 +43,10 @@
     }
 
     operation Oracle_SAT (queryRegister : Qubit[], target : Qubit, problem : (Int, Bool)[][], clauseTypes : String[]) : Unit is Adj {
-        using (auxiliaryRegister = Qubit[Length(problem)]) {
+        use auxiliaryRegister = Qubit[Length(problem)] {
             // Compute the clauses.
             within {
-                for (i in 0 .. Length(problem) - 1) {
+                for i in 0 .. Length(problem) - 1 {
                     Oracle_SATClause(queryRegister, auxiliaryRegister[i], problem[i], clauseTypes[i]);
                 }
             }
@@ -59,7 +59,7 @@
 
  
     operation Oracle_Converter (markingOracle : ((Qubit[], Qubit) => Unit is Adj), register : Qubit[]) : Unit is Adj {
-        using (target = Qubit()) {
+        use target = Qubit() {
             // Put the target into the |-⟩ state and later revert the state
             within { 
                 X(target);
@@ -91,7 +91,7 @@
         // 3. apply the 'apply'-part, i.e., a controlled Z
         // 4. apply X-gate
         // 5. apply H-gate
-        for (_ in 1 .. numIterations) {
+        for _ in 1 .. numIterations {
             phaseOracle(register);
             within {
                 ApplyToEachA(H, register);
@@ -107,7 +107,7 @@
     operation RunGroversSearch (N : Int, oracle : ((Qubit[], Qubit) => Unit is Adj)) : Bool[] {
         // Try different numbers of iterations.
         mutable answer = new Bool[N];
-        using ((register, output) = (Qubit[N], Qubit())) {
+        use (register, output) = (Qubit[N], Qubit()) {
             mutable correct = false;
             mutable iter = 1;
             repeat {
@@ -139,7 +139,7 @@
     operation GenerateSAT(terms : Int[]) : (Int, Bool)[] {
         let N = Length(terms);
         mutable arr = new (Int, Bool)[N];
-        for (i in 0 .. N - 1) {
+        for i in 0 .. N - 1 {
             set arr w/= i <- (terms[i], true);
         }
         return arr;
@@ -156,9 +156,9 @@
     operation CreateVariablesArray(players : Int) : Int [][] {
         mutable variablesArray = new Int[][players];
         mutable count = 0;
-        for (i in 0 .. players - 1) {
+        for i in 0 .. players - 1 {
             mutable rowArray = new Int[0];
-            for (j in 0 .. players - 1) {
+            for j in 0 .. players - 1 {
                 if (j != i) {
                     set rowArray += [count];
                     set count += 1;
@@ -187,10 +187,10 @@
         // Because we need all the unique values in both the vertical and horizontal,
         // we create a temporary arrays for the horizontal and vertical
         mutable intArray = new Int[][totalVariables];
-        for (i in 0 .. players - 1) {
+        for i in 0 .. players - 1 {
             mutable tmpArrayHor = new Int[0];
             mutable tmpArrayVer = new Int[0];
-            for (j in 0 .. players - 1) {
+            for j in 0 .. players - 1 {
                 if (i != j) {
                     set tmpArrayHor += [varibleNamesArray[i][j]];
                     set tmpArrayVer += [varibleNamesArray[j][i]];
@@ -201,7 +201,7 @@
         }
         
         mutable totalArray = new (Int,Bool)[][0];
-        for (i in 0 .. Length(intArray) - 1) {
+        for i in 0 .. Length(intArray) - 1 {
             set totalArray += [GenerateSAT(intArray[i])];
         }
         Message($"totalArray: {totalArray}");
@@ -215,7 +215,7 @@
     operation RunSecretSanta () : Unit {
         // Simulate the raffle with 3 and with 4 people
         //for (players in 3 .. 4) {
-		for ( players in 3 .. 3 ) {
+		for  players in 3 .. 3 {
             Message($"Simulate the Secret Santa raffle with {players} people.");
             let totalQubits = players * players - players;        // The number of qbits that will be used
             let clauseTypes = ConstantArray(2 * players, "ONE");  // The gates that will be used, e.g. ["ONE", "ONE", ....]
@@ -233,9 +233,9 @@
         
         mutable count = 0;
         
-        for (i in 0 .. N) {
+        for i in 0 .. N {
             mutable line = "";
-            for (j in 0 .. N) {
+            for j in 0 .. N {
                 if (i == 0) {
                     if (j != 0) {
                         set line += $"| {names[j - 1]}    ";

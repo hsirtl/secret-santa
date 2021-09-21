@@ -25,7 +25,7 @@
     }
 
     operation Oracle_Exactly1One (queryRegister : Qubit[], target : Qubit) : Unit is Adj {
-        for (i in 0 .. Length(queryRegister) - 1) {
+        for i in 0 .. Length(queryRegister) - 1 {
             (ControlledOnInt(2^i, X))(queryRegister, target);
         }
     }

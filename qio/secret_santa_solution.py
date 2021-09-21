@@ -7,10 +7,11 @@ from azure.quantum import Workspace
 from azure.quantum.optimization import Problem, ProblemType, Term, ParallelTempering, SimulatedAnnealing
 
 # Workspace information
-workspace = Workspace(
-    subscription_id =   'xxx', # add your subscription_id
-    resource_group =    'xxx', # add your resource_group
-    name =              'xxx', # add your workspace name
+workspace = Workspace (
+  subscription_id = "72f8c137-a3b1-4252-96be-1d2f4f43a42f",
+  resource_group = "quantum-eus-rg",
+  name = "hsirtl-eus-qws",
+  location = "eastus"
 )
 
 print ( 'init...' )
@@ -21,9 +22,11 @@ print ( 'login successful' )
 
 def build_terms ( i : int , j : int ) :
     """
-    Construct Terms for a row or a column ( two variables ) of the secret santa matrix
+    Construct Terms for two mutually exclusive elements of the secret santa
+    matrix, i.e. two elements that must not be true at the same time, ...
 
-    x(i)**2 + x(j)**2 + 2x(i)x(j) - 2x(i) - 2x(j) + 1
+    (x(i) XOR x(j)) <=> minimize (x(i) + x(j) - 1)**2
+                    <=> x(i)**2 + x(j)**2 + 2x(i)x(j) - 2x(i) - 2x(j) + 1
 
     Arguments:
     i (int): index of first variable
@@ -44,7 +47,7 @@ def print_results ( config : dict ) :
     """
     print results of run
 
-    Arguements:
+    Arguments:
     config (dictionary): config returned from solver
     """
     result =  { '0' : 'Vincent buys Tess a gift and writes her a poem' ,
@@ -85,6 +88,8 @@ solver = SimulatedAnnealing ( workspace , timeout = 100 )
 print ( 'calling solver' )
 result = solver.optimize ( problem )
 
-print_results ( result [ "configuration" ] )
+print ( 'response from solver' )
+print ( result['configuration'] )
+print ( ' ' )
 
-print ( '...fini' )
+print_results ( result [ "configuration" ] )
